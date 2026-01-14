@@ -1,0 +1,28 @@
+﻿@model TeamUpdateVM
+<div class="container">
+    <div class="row">
+        <form method="post" asp-action="Update" enctype="multipart/form-data">
+            <div class="form-group">
+                <label asp-for="FullName">FullName</label>
+                <input asp-for="FullName" class="form-control" placeholder="Enter Name">
+                <span asp-validation-for="FullName"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SocialMedia">SocialMedia</label>
+                <input asp-for="SocialMedia" class="form-control" placeholder="Enter SocialMedia">
+                <span asp-validation-for="SocialMedia"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Position">Position</label>
+                <input asp-for="Position" class="form-control" placeholder="Enter Position">
+                <span asp-validation-for="Position"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Image">Image</label>
+                <input asp-for="Image" type="file" class="form-control" placeholder="Enter Image">
+                <span asp-validation-for="Image"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+</div>

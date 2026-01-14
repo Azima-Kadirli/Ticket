@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGeneration;
 using Ticket.Context;
 using Ticket.Helper;
 using Ticket.Models;
@@ -76,6 +77,58 @@ public class TeamController : Controller
         if (team is null)
             return NotFound();
         _context.Teams.Remove(team);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Update(int id)
+    {
+        var team = await _context.Teams.FindAsync(id);
+        if(team is null)
+            return NotFound();
+        TeamUpdateVM vm = new()
+        {
+            FullName =  team.FullName,
+            Position =  team.Position,
+            SocialMedia =  team.SocialMedia
+        };
+        return View(vm);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Update(TeamUpdateVM vm)
+    {
+        if(!ModelState.IsValid)
+            return View(vm);
+
+        if (!vm.Image.CheckSize(2))
+        {
+            ModelState.AddModelError("Image","Seklin olcusu 2mb-dan cox olmaz");
+            return View(vm);
+        }
+
+        if (!vm.Image.CheckType("image"))
+        {
+            ModelState.AddModelError("Image","Image tipli sekil yoxlayin");
+            return View(vm);
+        }
+
+        var existTeam = await _context.Teams.FindAsync(vm.Id);
+        if(existTeam is null)
+            return BadRequest();
+
+        existTeam.FullName = vm.FullName;
+        existTeam.Position = vm.Position;
+        existTeam.SocialMedia = vm.SocialMedia;
+        if (vm.Image is { })
+        {
+            string newImagePath = await vm.Image.FileUpload(_folderPath);
+            string oldImagePath = Path.Combine(_folderPath,existTeam.Image);
+            ExtensionMethods.DeleteFile(oldImagePath);
+            existTeam.Image=newImagePath;
+        }
+        
+        _context.Teams.Update(existTeam);
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
